@@ -1,0 +1,18 @@
+$lobby-tile-color: #9457b9;
+
+
+.search-box{
+    background-color: $lobby-tile-color;
+}
+
+.lobby-tile{
+    font-size: large;
+    transition: 50ms;
+    background-color: $lobby-tile-color;
+    cursor: pointer;
+}
+
+.lobby-tile:hover{
+    transform: scale(1.1);
+    background-color: darken($lobby-tile-color, 10%);
+}

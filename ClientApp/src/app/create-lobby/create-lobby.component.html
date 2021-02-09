@@ -1,0 +1,33 @@
+<div class="row justify-content-center">
+    <div class="col-sm-12 col-lg-6" style="margin-top: 25%">
+        <form [formGroup]="form" (ngSubmit)="createLobby()">
+            <div class="row">
+                <div class="col d-flex">
+                    <div class="btn-group" role="group">
+                        <input type="checkbox" class="btn-check" id="public" autocomplete="off" formControlName="public">
+                        <label class="btn btn-outline-primary" name="public" for="public">Public</label>
+                    </div>
+                    <input type="text" placeholder="lobby name" class="col" name="name" formControlName="name" autocomplete="fchrome">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <select name="mode" class="form-select" formControlName="mode">
+                        <option *ngFor="let mode of modes">{{mode}}</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Max players</span>
+                        <input type="number" class="form-control" required formControlName="maxPlayers">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-success container-fluid">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

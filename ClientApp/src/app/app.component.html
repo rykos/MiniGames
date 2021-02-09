@@ -1,0 +1,37 @@
+<div class="container" *ngIf="currentMode=='lobby'">
+  <div class="row justify-content-center">
+    <div class="col-sm-12 col-lg-6">
+      <div class="d-flex border rounded py-2 px-3 my-1 justify-content-around search-box" style="height: 100px;">
+        <div>
+          <div class="input-group input-group-lg">
+            <input type="text" class="form-control" placeholder="Game ID" name="gameId" id="gameId">
+          </div>
+          <button class="btn btn-success container" (click)="join()">Join</button>
+        </div>
+        <div class="d-flex align-items-center justify-content-center"
+          style="height: 80px; width: 80px; background-color: #333; color: white; cursor: pointer;" (click)="createNew()">
+          NEW
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-sm-12 col-lg-6">
+      <div class="d-flex lobby-tile border rounded py-2 px-3 my-1 justify-content-between" *ngFor="let lobby of lobbys" (click)="join(lobby.id)">
+        <div class="col-2">
+          {{lobby.name}}
+        </div>
+        <div class="col-4">
+          {{lobby.game}}
+        </div>
+        <div>
+          {{lobby.players}}/{{lobby.playersMax}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <app-create-lobby *ngIf="currentMode=='create-lobby'"></app-create-lobby>
+  <app-rock-paper-scissors *ngIf="currentMode=='R&P&S'"></app-rock-paper-scissors>
+</div>
