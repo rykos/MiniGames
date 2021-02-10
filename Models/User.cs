@@ -1,7 +1,7 @@
 namespace MiniGames.Models
 {
     using UsernameGenerator;
-    
+
     public class User
     {
         public string Id { get; set; }
@@ -11,6 +11,15 @@ namespace MiniGames.Models
         public User()
         {
             this.Name = UsernameGenerator.GenerateUsername();
+        }
+
+        public object DTO()
+        {
+            return new
+            {
+                this.Id,
+                this.Name
+            };
         }
     }
 }

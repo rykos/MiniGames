@@ -28,21 +28,33 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.signalRService.hubConnection.on('ReceiveLobbies', (lobbys: Lobby[]) => {
-      this.lobbys = lobbys;
+      try {
+        this.lobbys = lobbys;
+      }
+      catch { }
     });
     this.signalRService.hubConnection.on('ReceiveLobby', (lobby: Lobby) => {
-      this.lobbys.push(lobby);
+      try {
+        this.lobbys.push(lobby);
+      }
+      catch { }
     });
     this.signalRService.hubConnection.on('UpdateLobby', (lobbyId: string, playersCount: number) => {
       try {
-        this.lobbys.filter(l => l.id == lobbyId)[0].players = playersCount;
+        let lobbyIndex = this.lobbys.findIndex(l => l.id == lobbyId);
+        this.lobbys[lobbyIndex].players = playersCount;
+        if (playersCount < 1) {
+          this.lobbys.splice(lobbyIndex, 1);
+        }
       }
       catch { }
     });
     this.signalRService.hubConnection.on('RemoveLobby', (lobbyId: string) => {
-      let x = this.lobbys.findIndex(x => x.id == lobbyId);
-      if (x > -1)
-        this.lobbys.splice(x, 1);
+      try {
+        let x = this.lobbys.findIndex(x => x.id == lobbyId);
+        if (x > -1)
+          this.lobbys.splice(x, 1);
+      } catch { }
     });
     this.signalRService.hubConnection.on('MoveToLobby', (lobbyId: string, mode: string) => {
       console.log(`Moving to lobby ${lobbyId} mode ${mode}`);

@@ -1,3 +1,4 @@
+import { Player } from './../models/Player';
 import { SignalRService } from './../services/signal-r.service';
 import { Component, OnInit } from '@angular/core';
 
@@ -8,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RockPaperScissorsComponent implements OnInit {
 
+  players: Player[];
   constructor(private signalRService: SignalRService) { }
 
   ngOnInit(): void {
@@ -15,15 +17,27 @@ export class RockPaperScissorsComponent implements OnInit {
     this.signalRService.disconnectionPromise.then(() => {
       this.signalRService.startConnection("rockpaperscissors");
       this.signalRService.connectionPromise.then(() => {
-        console.log("binding shit");
-        this.signalRService.hubConnection.on('Done', (userId: string) => {
-          console.log(`${userId} is done`);
-        });
-        this.signalRService.hubConnection.on('Reveal', (actions: any[]) => {
-          console.log(actions);
-        });
+        this.bindCommands();
+        this.signalRService.hubConnection.invoke("GetState");
       });
     });
+  }
+
+  private bindCommands() {
+    this.signalRService.hubConnection.on('Done', (userId: string) => {
+      console.log(`${userId} is done`);
+    });
+    this.signalRService.hubConnection.on('Reveal', (actions: any[]) => {
+      console.log(actions);
+    });
+    this.signalRService.hubConnection.on('UpdateGameState', (gamestate) => {
+      console.log(gamestate);
+    });
+  }
+
+  private unbindCommands() {
+    this.signalRService.hubConnection.off("Done");
+    this.signalRService.hubConnection.off("Reveal");
   }
 
   use(action: string) {

@@ -1,12 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MiniGames.Hubs;
+using MiniGames.Models;
+using static MiniGames.Hubs.LobbyHub;
 
-namespace MiniGames.Models
+namespace MiniGames.RockPaperScissors.Models
 {
     public class RockPaperScissorsLobby : Lobby
     {
-        public RockPaperScissorsLobby(string id, string name, string game, int players, int playersMax, LobbyHub.LobbyChange lobbyChange) : base(id, name, game, players, playersMax, lobbyChange)
+        public List<Action> UserActions = new List<Action>();
+        public RockPaperScissorsLobby(string id, string name, string game, int players, int playersMax, string creatorId, LobbyChange lobbyChange) : base(id, name, game, players, playersMax, creatorId, lobbyChange)
         {
             this.Game = "R&P&S";
         }
@@ -24,6 +28,17 @@ namespace MiniGames.Models
                 return;
 
             UserActions.Add(new Action(userId, actionName));
+        }
+
+        public GameState GetState()
+        {
+            return new GameState()
+            {
+                Actions = this.UserActions,
+                Users = this.users,
+                FinishTime = DateTime.UtcNow,
+                ActiveUsers = this.users.Select(u => u.Id).ToList()
+            };
         }
 
         public bool GameIsFinished()
@@ -47,7 +62,6 @@ namespace MiniGames.Models
             return actions;
         }
 
-        public List<Action> UserActions = new List<Action>();
 
         private void RemoveAction(string userId)
         {
@@ -55,18 +69,6 @@ namespace MiniGames.Models
             if (action.UserId != default)
             {
                 this.UserActions.Remove(action);
-            }
-        }
-
-        public struct Action
-        {
-            public string UserId { get; set; }
-            public string ActionName { get; set; }
-
-            public Action(string userId, string actionName)
-            {
-                UserId = userId;
-                ActionName = actionName;
             }
         }
     }

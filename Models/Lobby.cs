@@ -7,13 +7,14 @@ namespace MiniGames.Models
 {
     public class Lobby
     {
-        public Lobby(string id, string name, string game, int players, int playersMax, LobbyHub.LobbyChange lobbyChange)
+        public Lobby(string id, string name, string game, int players, int playersMax, string creatorId, LobbyHub.LobbyChange lobbyChange)
         {
-            Id = id;
-            Name = name;
-            Game = game;
-            Players = players;
-            PlayersMax = playersMax;
+            this.Id = id;
+            this.Name = name;
+            this.Game = game;
+            this.Players = players;
+            this.PlayersMax = playersMax;
+            this.CreatorId = creatorId;
             this.lobbyChange = lobbyChange;
         }
 
@@ -22,8 +23,9 @@ namespace MiniGames.Models
         public string Game { get; set; }
         public int Players { get; set; }
         public int PlayersMax { get; set; }
+        public string CreatorId { get; set; }
 
-        public List<string> users = new List<string>();
+        public List<User> users = new List<User>();
         private LobbyHub.LobbyChange lobbyChange;
 
         public virtual bool AddUser(string userid)
@@ -31,7 +33,7 @@ namespace MiniGames.Models
             if (this.Players >= this.PlayersMax)
                 return false;
             this.Players++;
-            this.users.Add(userid);
+            this.users.Add(UserManager.GetUser(userid));
             UserManager.UserSetGroup(userid, this.Id);
             this.lobbyChange?.Invoke(this.Id, this.Players);
             return true;
@@ -39,9 +41,15 @@ namespace MiniGames.Models
 
         public virtual void RemoveUser(string userid)
         {
+            User user = this.users.FirstOrDefault(u => u.Id == userid);
+            if (user == default)
+                return;
+            this.users.Remove(user);
             this.Players--;
-            this.users.Remove(userid);
             this.lobbyChange?.Invoke(this.Id, this.Players);
+            //Destroy empty lobby
+            if (this.Players <= 0)
+                LobbyHub.lobbies.Remove(this);
         }
 
         public object DTO()

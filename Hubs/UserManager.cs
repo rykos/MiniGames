@@ -7,6 +7,17 @@ namespace MiniGames.Models
     {
         public static HashSet<User> Users = new HashSet<User>();
 
+
+        public static void UserInit(string userId)
+        {
+            lock (Users)
+            {
+                User user = UserManager.Users.FirstOrDefault(u => u.Id == userId);
+                if (user == default)
+                    UserManager.Users.Add(user = new User() { Id = userId });
+            }
+        }
+
         public static void UserSetGroup(string userId, string groupId)
         {
             lock (Users)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using MiniGames.Models;
+using MiniGames.RockPaperScissors.Models;
 
 namespace MiniGames.Hubs
 {
@@ -29,6 +30,7 @@ namespace MiniGames.Hubs
         public override Task OnConnectedAsync()
         {
             Console.WriteLine($"{Context.UserIdentifier} connected");
+            UserManager.UserInit(Context.UserIdentifier);
             return base.OnConnectedAsync();
         }
 
@@ -45,13 +47,16 @@ namespace MiniGames.Hubs
 
         public async Task CreateLobby(string name, string mode, int maxPlayers, bool publicLobby)
         {
+            if(maxPlayers < 2){
+                return;
+            }
             if (mode == "R&P&S")
             {
-                Lobby lobby = new RockPaperScissorsLobby(Guid.NewGuid().ToString(), name, mode, 0, maxPlayers, this.LobbyChanged);
+                Lobby lobby = new RockPaperScissorsLobby(Guid.NewGuid().ToString(), name, mode, 0, maxPlayers, Context.UserIdentifier, this.LobbyChanged);
                 lobby.AddUser(Context.UserIdentifier);
                 LobbyHub.lobbies.Add(lobby);
                 await this.Clients.Caller.MoveToLobby(lobby.Id, mode);
-                await this.Clients.All.ReceiveLobby(lobby);
+                await this.Clients.AllExcept(Context.ConnectionId).ReceiveLobby(lobby);
             }
             else
             {
@@ -67,9 +72,7 @@ namespace MiniGames.Hubs
 
             bool success = lobby.AddUser(Context.UserIdentifier);
             if (success)
-            {
                 await this.Clients.Caller.MoveToLobby(lobby.Id, lobby.Game);
-            }
         }
     }
 
@@ -80,5 +83,6 @@ namespace MiniGames.Hubs
         Task ReceiveLobby(Lobby lobby);
         Task UpdateLobby(string lobbyId, int players);
         Task RemoveLobby(string id);
+        Task ReceiveMessage(string msg);
     }
 }
