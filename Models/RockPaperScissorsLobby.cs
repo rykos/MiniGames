@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.SignalR;
 using MiniGames.Hubs;
 using MiniGames.Models;
 using static MiniGames.Hubs.LobbyHub;
@@ -10,9 +11,12 @@ namespace MiniGames.RockPaperScissors.Models
     public class RockPaperScissorsLobby : Lobby
     {
         public List<Action> UserActions = new List<Action>();
-        public RockPaperScissorsLobby(string id, string name, string game, int players, int playersMax, string creatorId, LobbyChange lobbyChange) : base(id, name, game, players, playersMax, creatorId, lobbyChange)
+        private readonly IHubContext<RockPaperScissorsHub, IRockPaperScissors> rpsHub;
+        public RockPaperScissorsLobby(string id, string name, string game, int players, int playersMax, string creatorId, LobbyChange lobbyChange, IHubContext<RockPaperScissorsHub, IRockPaperScissors> rpsHub)
+            : base(id, name, game, players, playersMax, creatorId, lobbyChange)
         {
             this.Game = "R&P&S";
+            this.rpsHub = rpsHub;
         }
 
         public override void RemoveUser(string userid)
@@ -34,7 +38,7 @@ namespace MiniGames.RockPaperScissors.Models
         {
             return new GameState()
             {
-                Actions = this.UserActions,
+                Actions = this.UserActions.Select(a => a.CensorAction()).ToList(),
                 Users = this.users,
                 FinishTime = DateTime.UtcNow,
                 ActiveUsers = this.users.Select(u => u.Id).ToList()
@@ -62,13 +66,17 @@ namespace MiniGames.RockPaperScissors.Models
             return actions;
         }
 
-
+        //On player leave
         private void RemoveAction(string userId)
         {
             var action = this.UserActions.FirstOrDefault(a => a.UserId == userId);
             if (action.UserId != default)
-            {
                 this.UserActions.Remove(action);
+
+            if (this.GameIsFinished())
+            {
+                //Notify players if player leave forced game to finish
+                this.rpsHub.Clients.Group(this.Id).Reveal(this.GetActions());
             }
         }
     }

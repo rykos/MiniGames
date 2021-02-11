@@ -10,5 +10,10 @@ namespace MiniGames.RockPaperScissors.Models
             UserId = userId;
             ActionName = actionName;
         }
+
+        public Action CensorAction()
+        {
+            return new Action(this.UserId, null);
+        }
     }
 }

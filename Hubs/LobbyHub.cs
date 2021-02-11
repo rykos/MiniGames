@@ -12,11 +12,13 @@ namespace MiniGames.Hubs
     {
         public delegate void LobbyChange(string lobbyId, int playerCount);
         public event LobbyChange LobbyChanged;
-
         public static List<Lobby> lobbies = new();
 
-        public LobbyHub()
+        private IHubContext<RockPaperScissorsHub, IRockPaperScissors> rpsHub;
+
+        public LobbyHub(IHubContext<RockPaperScissorsHub, IRockPaperScissors> rpsHub)
         {
+            this.rpsHub = rpsHub;
             if (LobbyChanged == null)
             {
                 LobbyChanged += (string lobbyId, int players) =>
@@ -52,7 +54,7 @@ namespace MiniGames.Hubs
             }
             if (mode == "R&P&S")
             {
-                Lobby lobby = new RockPaperScissorsLobby(Guid.NewGuid().ToString(), name, mode, 0, maxPlayers, Context.UserIdentifier, this.LobbyChanged);
+                Lobby lobby = new RockPaperScissorsLobby(Guid.NewGuid().ToString(), name, mode, 0, maxPlayers, Context.UserIdentifier, this.LobbyChanged, this.rpsHub);
                 lobby.AddUser(Context.UserIdentifier);
                 LobbyHub.lobbies.Add(lobby);
                 await this.Clients.Caller.MoveToLobby(lobby.Id, mode);

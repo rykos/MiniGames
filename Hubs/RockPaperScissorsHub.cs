@@ -50,8 +50,7 @@ namespace MiniGames.Hubs
             if (lobby.GameIsFinished())
                 await Clients.Group(groupId).Reveal(lobby.GetActions());
         }
-
-
+        
         private Lobby GetUserLobby()
         {
             User user = UserManager.GetUser(Context.UserIdentifier);

@@ -32,6 +32,9 @@ namespace MiniGames.Models
         {
             if (this.Players >= this.PlayersMax)
                 return false;
+            User user = this.users.FirstOrDefault(u => u.Id == userid);
+            if (user != default)
+                return false;
             this.Players++;
             this.users.Add(UserManager.GetUser(userid));
             UserManager.UserSetGroup(userid, this.Id);
