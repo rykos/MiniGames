@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.signalRService.startConnection("lobby");
-    this.setup();
+    this.bindCommands();
 
     this.signalRService.connectionPromise.then(() => {
       //load lobbys on connect
@@ -26,20 +26,29 @@ export class AppComponent implements OnInit {
     });
   }
 
-  setup() {
-    this.signalRService.hubConnection.on('ReceiveLobbies', (lobbys: Lobby[]) => {
+  bindCommands() {
+    this.signalRService.registerFunction("MoveToLobby", (lobbyId: string, mode: string) => {
+      try {
+        console.log(`Moving to lobby ${lobbyId} mode ${mode}`);
+        this.signalRService.unregisterFunctions();
+        this.signalRService.stopConnection();
+        AppComponent.currentMode = "R&P&S";
+      }
+      catch { }
+    });
+    this.signalRService.registerFunction("ReceiveLobbies", (lobbys: Lobby[]) => {
       try {
         this.lobbys = lobbys;
       }
       catch { }
     });
-    this.signalRService.hubConnection.on('ReceiveLobby', (lobby: Lobby) => {
+    this.signalRService.registerFunction("ReceiveLobby", (lobby: Lobby) => {
       try {
         this.lobbys.push(lobby);
       }
       catch { }
     });
-    this.signalRService.hubConnection.on('UpdateLobby', (lobbyId: string, playersCount: number) => {
+    this.signalRService.registerFunction("UpdateLobby", (lobbyId: string, playersCount: number) => {
       try {
         let lobbyIndex = this.lobbys.findIndex(l => l.id == lobbyId);
         this.lobbys[lobbyIndex].players = playersCount;
@@ -49,17 +58,12 @@ export class AppComponent implements OnInit {
       }
       catch { }
     });
-    this.signalRService.hubConnection.on('RemoveLobby', (lobbyId: string) => {
+    this.signalRService.registerFunction("RemoveLobby", (lobbyId: string) => {
       try {
         let x = this.lobbys.findIndex(x => x.id == lobbyId);
         if (x > -1)
           this.lobbys.splice(x, 1);
       } catch { }
-    });
-    this.signalRService.hubConnection.on('MoveToLobby', (lobbyId: string, mode: string) => {
-      console.log(`Moving to lobby ${lobbyId} mode ${mode}`);
-      this.signalRService.stopConnection();
-      AppComponent.currentMode = "R&P&S";
     });
   }
 

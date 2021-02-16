@@ -41,7 +41,7 @@ namespace MiniGames.RockPaperScissors.Models
                 Actions = this.UserActions.Select(a => a.CensorAction()).ToList(),
                 Users = this.users,
                 FinishTime = DateTime.UtcNow,
-                ActiveUsers = this.users.Select(u => u.Id).ToList()
+                ActiveUsers = this.users.Select(u => u.DTO()).ToList()
             };
         }
 

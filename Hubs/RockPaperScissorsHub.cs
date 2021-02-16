@@ -17,6 +17,8 @@ namespace MiniGames.Hubs
             {
                 Console.WriteLine($"{user.Name} connected");
                 await Groups.AddToGroupAsync(Context.ConnectionId, user.GroupId);
+                //Notify other players
+                await Clients.GroupExcept(user.GroupId, Context.ConnectionId).UserJoined(user.DTO());
             }
             await base.OnConnectedAsync();
         }
@@ -28,6 +30,7 @@ namespace MiniGames.Hubs
             {
                 Lobby lobby = LobbyHub.lobbies.FirstOrDefault(l => l.Id == user.GroupId);
                 lobby.RemoveUser(user.Id);
+                Clients.GroupExcept(user.GroupId, Context.ConnectionId).UserLeft(user.Id);
             }
             return base.OnDisconnectedAsync(exception);
         }
@@ -69,5 +72,7 @@ namespace MiniGames.Hubs
         //Signalizes that new round has started
         Task StartRound();
         Task UpdateGameState(GameState gameState);
+        Task UserJoined(object user);
+        Task UserLeft(string userId);
     }
 }

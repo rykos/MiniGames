@@ -13,7 +13,7 @@ namespace MiniGames.RockPaperScissors.Models
         // All users in a room
         public List<User> Users { get; set; }
         // User id's that are granted right to make action
-        public List<string> ActiveUsers { get; set; }
+        public List<object> ActiveUsers { get; set; }
         public List<Models.Action> Actions { get; set; }
     }
 }

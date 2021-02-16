@@ -11,7 +11,8 @@ export class SignalRService {
   public hubConnection: HubConnection;
   public connectionPromise: Promise<void>;
   public disconnectionPromise: Promise<void>;
-  
+  private registeredFunctions: string[] = [];
+
   constructor(private userService: UserService) { }
 
   public startConnection(hubName: string) {
@@ -28,6 +29,18 @@ export class SignalRService {
 
   public stopConnection() {
     return this.disconnectionPromise = this.hubConnection.stop();
+  }
+
+  public registerFunction(name: string, action: (...args) => void) {
+    this.registeredFunctions.push(name);
+    this.hubConnection.on(name, action);
+  }
+
+  public unregisterFunctions() {
+    for (let i = this.registerFunction.length - 1; i >= 0; i--) {
+      this.hubConnection.off(this.registerFunction[i]);
+      this.registeredFunctions.pop();
+    }
   }
 
   public refreshLobbys() {

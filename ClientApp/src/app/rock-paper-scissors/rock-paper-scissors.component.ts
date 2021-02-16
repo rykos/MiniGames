@@ -24,20 +24,28 @@ export class RockPaperScissorsComponent implements OnInit {
   }
 
   private bindCommands() {
-    this.signalRService.hubConnection.on('Done', (userId: string) => {
+    this.signalRService.registerFunction("Done", (userId: string) => {
       console.log(`${userId} is done`);
     });
-    this.signalRService.hubConnection.on('Reveal', (actions: any[]) => {
+    this.signalRService.registerFunction("Reveal", (actions: any[]) => {
       console.log(actions);
     });
-    this.signalRService.hubConnection.on('UpdateGameState', (gamestate) => {
+    this.signalRService.registerFunction("UpdateGameState", (gamestate) => {
+      this.players = gamestate.activeUsers;
       console.log(gamestate);
+    });
+    this.signalRService.registerFunction("UserLeft", (userId: string) => {
+      console.log(userId);
+      this.players = this.players.filter(p => p.id != userId);
+    });
+    this.signalRService.registerFunction("UserJoined", (player: Player) => {
+      console.log(player);
+      this.players.push(player);
     });
   }
 
   private unbindCommands() {
-    this.signalRService.hubConnection.off("Done");
-    this.signalRService.hubConnection.off("Reveal");
+    this.signalRService.unregisterFunctions();
   }
 
   use(action: string) {

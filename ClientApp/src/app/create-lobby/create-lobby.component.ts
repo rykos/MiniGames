@@ -16,7 +16,7 @@ export class CreateLobbyComponent implements OnInit {
     this.form = this.formBuider.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       mode: [this.modes[0], Validators.required],
-      maxPlayers: [1, Validators.required],
+      maxPlayers: [2, Validators.required],
       public: [false, Validators.required]
     });
   }
