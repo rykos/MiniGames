@@ -1,6 +1,8 @@
+import { UserService } from './../services/user.service';
+import { RpsGameState } from './../models/RpsGameState';
 import { Player } from './../models/Player';
 import { SignalRService } from './../services/signal-r.service';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-rock-paper-scissors',
@@ -10,7 +12,15 @@ import { Component, OnInit } from '@angular/core';
 export class RockPaperScissorsComponent implements OnInit {
 
   players: Player[];
-  constructor(private signalRService: SignalRService) { }
+  gameState: RpsGameState;
+  timerId: NodeJS.Timeout;
+
+  constructor(private signalRService: SignalRService) {
+    this.gameState = new RpsGameState(new Date(), new Date(new Date().getTime() + 60 * 1000));
+    console.log(this.gameState.roundStart);
+    console.log(this.gameState.roundEnd);
+    this.startRound();
+  }
 
   ngOnInit(): void {
     // RPS
@@ -51,6 +61,27 @@ export class RockPaperScissorsComponent implements OnInit {
   use(action: string) {
     console.log(action);
     this.signalRService.hubConnection.invoke('Use', action);
+  }
+
+  timeLeft(): string {
+    if (this.gameState)
+      return `${this.gameState.timeLeft} seconds`;
+    else
+      return null;
+  }
+
+  finishRound() {
+    clearInterval(this.timerId);
+    this.gameState.closeRound();
+  }
+
+  startRound() {
+    this.timerId = setInterval(() => {
+      if (this.gameState.timeLeft > 0)
+        this.gameState.timeLeft -= 1;
+      else
+        clearInterval(this.timerId);
+    }, 1000);
   }
 
 }

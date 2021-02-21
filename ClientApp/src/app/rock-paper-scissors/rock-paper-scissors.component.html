@@ -1,15 +1,34 @@
 <!-- players -->
-<ul class="list-group">
-    <li class="list-group-item" *ngFor="let player of players">{{player.name}}</li>
+<ul class="d-flex">
+    <div class="border bg-secondary" *ngFor="let player of players">
+        {{player.name}}
+        <!-- <img *ngIf="!player.acted" src="/assets/images/checkmark_missing.svg"> -->
+        <img *ngIf="player.acted" src="/assets/images/checkmark.svg">
+    </div>
 </ul>
 
-<p>rock-paper-scissors works!</p>
-<button (click)="use('rock')">
-    rock
-</button>
-<button (click)="use('paper')">
-    paper
-</button>
-<button (click)="use('scissors')">
-    scissors
-</button>
+<!-- Action menu -->
+<div class="container" *ngIf="gameState">
+    <div class="row justify-content-center" *ngIf="gameState.active">
+        <div class="row col-6">
+            <h5 class="d-flex justify-content-center">{{timeLeft()}}</h5>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="row col-6" style="visibility: visible;">
+            <!-- actions -->
+            <button type="button" class="btn btn-primary col mx-1" (click)="use('rock')">
+                Rock
+            </button>
+            <button type="button" class="btn btn-primary col mx-1" (click)="use('paper')">
+                Paper
+            </button>
+            <button type="button" class="btn btn-primary col mx-1" (click)="use('scissors')">
+                Scissors
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        
+    </div>
+</div>
